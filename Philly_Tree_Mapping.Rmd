@@ -473,30 +473,4 @@ t8 <- ggplot() +
   scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"),name='Trees Pruned',labels=c('0','1-5','6-10','11-15','16-20','21-25','25+'))+
   geom_sf(data = city_concil_districts,fill='Transparent',color='grey20',linewidth=1)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT != 9 & DISTRICT != 2),aes(label=DISTRICT),size=7)+
-  geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
-  theme_void()+
-  ggtitle('Number of Trees Pruned (FY24)')+
-  theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.8, 0.25))
-
-ggsave('outputs/prunings.png')
-
-grid.arrange(nrow=1,t7,t8)
-  
-```
-
-Calculate the Number of Prunings and Plantings in Priority Areas. Check if centroid of census block is in a high priority area.
-
-``` {r prunings_plantings_priority_area}
-
-plantings_prunings_block %>%
-  st_centroid() %>%
-  st_join(.,high_priority_areas,predicate='st_intersects',left=FALSE) %>%
-  summarise(plantings_24 = sum(Plantings_FY24),
-            prunings_24 = sum(Prunings_FY24)) %>%
-  st_drop_geometry() %>%
-  mutate(plant_percent24 = plantings_24 / 570,
-         prun_percent24 = prunings_24 / 1547) %>%
-  kbl() %>%
-  kable_classic()
-
-```
+  geom_sf_text(data=city_concil_districts %>% filter(DISTRIC
