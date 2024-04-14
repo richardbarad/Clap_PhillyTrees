@@ -1,0 +1,7 @@
+"0","heat_centroids <- heat_vulnerability  %>%"
+"0","  st_centroid()"
+"0",""
+"0","Philly_Tracts2 <- Philly_Tracts %>%"
+"0","  st_join(.,heat_centroids,left=TRUE) %>%"
+"0","  distinct(GEOID, .keep_all = TRUE) %>%"
+"0","  select(-geoid10)"

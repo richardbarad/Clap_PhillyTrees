@@ -24,7 +24,7 @@ library(RSocrata) #Import CDC data from Socrata
 
 ```{r get_data, results='hide'}
 #Downloaded shapefile and reprojected using ArcGIS since dataset was too large to read via API and reproject using R
-philly_tree_canopy <- st_read('/Users/skycheng17/Documents/clap/TreeCanopyChange_2008_2018-shp/TreeCanopy_2018_2272.shp')
+philly_tree_canopy <- st_read('TreeCanopyChange_2008_2018-shp/TreeCanopy_2018_2272.shp')
 
 #Read data from open data Philly and tracts using Tigris
 city_concil_districts <- st_read('https://opendata.arcgis.com/api/v3/datasets/1ba5a5d68f4a4c75806e78b1d9245924_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1') %>% st_transform('EPSG:2272')
@@ -35,26 +35,6 @@ heat_vulnerability <- st_read('https://opendata.arcgis.com/api/v3/datasets/6afc1
   st_transform('EPSG:2272') %>% 
   select('geoid10','hei_score')
 ```
-Council District Filter NEW ADDITION 4.3
-
-```{r}
-
-joined_data <- st_join(Philly_Tracts, city_concil_districts)
-district_1_data <- joined_data %>%
-  filter(DISTRICT == 1)
-d1_bd <- city_concil_districts %>%
-  filter(DISTRICT == 1) 
-
-ggplot() +
-  geom_sf(data = district_1_data, aes(fill = cut(pct_tree, breaks = c(0, 5,10, 20, 30, 40, 50, 100))), color = 'white', linewidth = 0.2) +
-  scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"), name = 'Percent Tree Cover (2018)', labels = c('0 - 5%', '5 - 10%', '10 - 20%', '20 - 30%', '30 - 40%', '40 - 50%', '>50%')) +
-  geom_sf(data = d1_bd, fill = 'Transparent', color = 'grey20', linewidth = 1) +
-  theme_void() +
-  ggtitle('Percent Tree Cover (2018) in City Council District 1') +  
-  theme(legend.text = element_text(size = 11), legend.title = element_text(size = 12))
-```
-
-
 
 
 # Tree Cover by Census Tract
@@ -86,30 +66,49 @@ Philly_Tracts <- Philly_Tracts %>%
 
 t1 <- ggplot() +
   geom_sf(data = Philly_Tracts, aes(fill = cut(pct_tree, breaks = c(0, 5,10, 20, 30, 40, 50, 100))),color='white',linewidth =0.2) +
-  scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"),name='Percent Tree Cover (2018)',labels=c('0 - 5%','5 - 10%','10 - 20%','20 - 30%','30 - 40%','40 - 50%','>50%')) +
+  scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"),name='Percent Tree Canopy Cover (2018)',labels=c('0 - 5%','5 - 10%','10 - 20%','20 - 30%','30 - 40%','40 - 50%','>50%')) +
   geom_sf(data = city_concil_districts,fill='Transparent',color='grey20',linewidth=1)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT != 9 & DISTRICT != 2),aes(label=DISTRICT),size=7)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
-  ggtitle('Percent Tree Cover (2018)')+
-  theme(legend.text=element_text(size=11),legend.title=element_text(size=12))
+  ggtitle('Percent Tree Canopy Cover (2018)')+
+  theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.85, 0.2))
 
 ggsave('outputs/tree_cover1.png',dpi=300,width=6,height=5)
 
 t2 <- ggplot() +
   geom_sf(data = Philly_Tracts, aes(fill = cut(pct_tree, breaks = c(0,mean(pct_tree),100))),color='white',linewidth =0.2) +
-  scale_fill_manual(values = brewer.pal(n = 3, name = "YlGn"),name='Percent Tree Cover (2018)',labels=c('Below Average','Above Average')) +
+  scale_fill_manual(values = brewer.pal(n = 3, name = "YlGn"),name='Percent Tree Canopy Cover (2018)',labels=c('Below Average','Above Average')) +
   geom_sf(data = city_concil_districts,fill='Transparent',color='grey20',linewidth=1)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT != 9 & DISTRICT != 2),aes(label=DISTRICT),size=7)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
-  ggtitle('Tree Cover Compared to Average')+
-  theme(legend.text=element_text(size=11),legend.title=element_text(size=12))
+  ggtitle('Tree Canopy Cover Compared to Average')+
+  theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.85, 0.2))
 
-ggsave('outputs/tree_cover2.png',dpi=300)
+ggsave('outputs/tree_cover2.png',dpi=300,width=5,height=5)
 
 t <- grid.arrange(ncol=2,t1,t2)
 
+```
+
+Council District Filter NEW ADDITION 4.3
+
+```{r}
+
+joined_data <- st_join(Philly_Tracts, city_concil_districts)
+district_1_data <- joined_data %>%
+  filter(DISTRICT == 1)
+d1_bd <- city_concil_districts %>%
+  filter(DISTRICT == 1) 
+
+ggplot() +
+  geom_sf(data = district_1_data, aes(fill = cut(pct_tree, breaks = c(0, 5,10, 20, 30, 40, 50, 100))), color = 'white', linewidth = 0.2) +
+  scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"), name = 'Percent Tree Cover (2018)', labels = c('0 - 5%', '5 - 10%', '10 - 20%', '20 - 30%', '30 - 40%', '40 - 50%', '>50%')) +
+  geom_sf(data = d1_bd, fill = 'Transparent', color = 'grey20', linewidth = 1) +
+  theme_void() +
+  ggtitle('Percent Tree Cover (2018) in City Council District 1') +  
+  theme(legend.text = element_text(size = 11), legend.title = element_text(size = 12))
 ```
 
 ## Street Trees - Data Processing
@@ -165,7 +164,7 @@ t4 <- ggplot() +
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
   ggtitle('Change in Street Trees (2021 to 2023)')+
-  theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.8, 0.2))
+  theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.9, 0.2))
 
 ggsave('outputs/tree_change2023_2021.png',dpi=300,width=5,height=5)
 
@@ -177,9 +176,9 @@ t5 <- ggplot() +
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
   ggtitle('Percent Change in Street Trees (2021 to 2023)')+
-  theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.8, 0.2))
+  theme(legend.text=element_text(size=9),legend.title=element_text(size=10),legend.position = c(0.88, 0.2))
 
-ggsave('outputs/tree_pctchange1.png',dpi=300,width=5,height=5)
+ggsave('outputs/tree_pctchange1.png',dpi=300,width=5.2,height=5)
 
 t6 <- ggplot() +
   geom_sf(data = Philly_Tracts, aes(fill = cut(pct_change, breaks = c(-100,0,2.5,5,10,20,100))),color='white',linewidth =0.2)+
@@ -428,14 +427,16 @@ plantings <- read.csv('data/plantings.csv') %>%
   replace(is.na(.),0) %>% 
   rename(GEOID20 = Census.Block) %>%
   mutate(Plantings_FY_2024_23 = FY23.Count + FY24.Count) %>%
-  select(GEOID20,Plantings_FY_2024_23)
+  rename(Plantings_FY24 = FY24.Count) %>%
+  select(GEOID20,Plantings_FY_2024_23,Plantings_FY24)
 
 #Read pruning data by census block and get total for FY23 and FY24
 prunings <- read.csv('data/prunings.csv') %>% 
   replace(is.na(.),0) %>% 
   rename(GEOID20 = Census.Block) %>%
   mutate(Prunings_FY_2024_23 = FY23.Count + FY24.Count) %>%
-  select(GEOID20,Prunings_FY_2024_23)
+  rename(Prunings_FY24 = FY24.Count) %>%
+  select(GEOID20,Prunings_FY_2024_23,Prunings_FY24)
 
 #Download cenus block data using tigris and join planting and pruning data
 plantings_prunings_block <- tigris::blocks(state='PA',county='Philadelphia') %>%
@@ -457,16 +458,16 @@ Philly_Tracts3 <- left_join(Philly_Tracts2,plantings_prunings_tract,by='GEOID')
 
 #Make Maps
 t7 <- ggplot() +
-  geom_sf(data = Philly_Tracts3, aes(fill = cut(plantings, breaks = c(-1,0,2,4,6,8,10,30))),color='white',linewidth =0.2)+
+  geom_sf(data = Philly_Tracts3, aes(fill = cut(plantings, breaks = c(-1,0,2,4,6,8,10,25))),color='white',linewidth =0.2)+
   scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"),name='Trees Planted',labels=c('0','1-2','3-4','5-6','7-8','9-10','10+'))+
   geom_sf(data = city_concil_districts,fill='Transparent',color='grey20',linewidth=1)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT != 9 & DISTRICT != 2),aes(label=DISTRICT),size=7)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
-  ggtitle('Number of Trees Planted (FY23 and FY24)')+
+  ggtitle('Number of Street Trees Planted by Parks and Recreation (FY23/24)')+
   theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.8, 0.25))
 
-ggsave('outputs/plantings.png',dpi=300,width=5,height=5)
+ggsave('outputs/plantings.png')
 
 t8 <- ggplot() +
   geom_sf(data = Philly_Tracts3, aes(fill = cut(prunings, breaks = c(-1,0,5,10,15,20,25,100))),color='white',linewidth =0.2)+
@@ -475,10 +476,10 @@ t8 <- ggplot() +
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT != 9 & DISTRICT != 2),aes(label=DISTRICT),size=7)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
-  ggtitle('Number of Trees Pruned (FY23 and FY24)')+
+  ggtitle('Number of Street Trees Pruned by Parks and Recreation (FY23/24)')+
   theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.8, 0.25))
 
-ggsave('outputs/prunings.png',dpi=300,width=5,height=5)
+ggsave('outputs/prunings.png')
 
 grid.arrange(nrow=1,t7,t8)
   
