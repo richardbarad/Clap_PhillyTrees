@@ -24,7 +24,7 @@ library(RSocrata) #Import CDC data from Socrata
 
 ```{r get_data, results='hide'}
 #Downloaded shapefile and reprojected using ArcGIS since dataset was too large to read via API and reproject using R
-philly_tree_canopy <- st_read('TreeCanopyChange_2008_2018-shp/TreeCanopy_2018_2272.shp')
+philly_tree_canopy <- st_read('/Users/skycheng17/Documents/clap/TreeCanopyChange_2008_2018-shp/TreeCanopy_2018_2272.shp')
 
 #Read data from open data Philly and tracts using Tigris
 city_concil_districts <- st_read('https://opendata.arcgis.com/api/v3/datasets/1ba5a5d68f4a4c75806e78b1d9245924_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1') %>% st_transform('EPSG:2272')
@@ -35,6 +35,26 @@ heat_vulnerability <- st_read('https://opendata.arcgis.com/api/v3/datasets/6afc1
   st_transform('EPSG:2272') %>% 
   select('geoid10','hei_score')
 ```
+Council District Filter NEW ADDITION 4.3
+
+```{r}
+
+joined_data <- st_join(Philly_Tracts, city_concil_districts)
+district_1_data <- joined_data %>%
+  filter(DISTRICT == 1)
+d1_bd <- city_concil_districts %>%
+  filter(DISTRICT == 1) 
+
+ggplot() +
+  geom_sf(data = district_1_data, aes(fill = cut(pct_tree, breaks = c(0, 5,10, 20, 30, 40, 50, 100))), color = 'white', linewidth = 0.2) +
+  scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"), name = 'Percent Tree Cover (2018)', labels = c('0 - 5%', '5 - 10%', '10 - 20%', '20 - 30%', '30 - 40%', '40 - 50%', '>50%')) +
+  geom_sf(data = d1_bd, fill = 'Transparent', color = 'grey20', linewidth = 1) +
+  theme_void() +
+  ggtitle('Percent Tree Cover (2018) in City Council District 1') +  
+  theme(legend.text = element_text(size = 11), legend.title = element_text(size = 12))
+```
+
+
 
 
 # Tree Cover by Census Tract
