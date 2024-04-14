@@ -437,16 +437,16 @@ Philly_Tracts3 <- left_join(Philly_Tracts2,plantings_prunings_tract,by='GEOID')
 
 #Make Maps
 t7 <- ggplot() +
-  geom_sf(data = Philly_Tracts3, aes(fill = cut(plantings, breaks = c(-1,0,2,4,6,8,10,25))),color='white',linewidth =0.2)+
+  geom_sf(data = Philly_Tracts3, aes(fill = cut(plantings, breaks = c(-1,0,2,4,6,8,10,30))),color='white',linewidth =0.2)+
   scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"),name='Trees Planted',labels=c('0','1-2','3-4','5-6','7-8','9-10','10+'))+
   geom_sf(data = city_concil_districts,fill='Transparent',color='grey20',linewidth=1)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT != 9 & DISTRICT != 2),aes(label=DISTRICT),size=7)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
-  ggtitle('Number of Trees Planted (FY24)')+
+  ggtitle('Number of Trees Planted (FY23 and FY24)')+
   theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.8, 0.25))
 
-ggsave('outputs/plantings.png')
+ggsave('outputs/plantings.png',dpi=300,width=5,height=5)
 
 t8 <- ggplot() +
   geom_sf(data = Philly_Tracts3, aes(fill = cut(prunings, breaks = c(-1,0,5,10,15,20,25,100))),color='white',linewidth =0.2)+
@@ -455,10 +455,10 @@ t8 <- ggplot() +
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT != 9 & DISTRICT != 2),aes(label=DISTRICT),size=7)+
   geom_sf_text(data=city_concil_districts %>% filter(DISTRICT == 9 | DISTRICT == 2),aes(label=DISTRICT),size=7,nudge_x=5000,nudge_y=-5000)+
   theme_void()+
-  ggtitle('Number of Trees Pruned (FY24)')+
+  ggtitle('Number of Trees Pruned (FY23 and FY24)')+
   theme(legend.text=element_text(size=11),legend.title=element_text(size=12),legend.position = c(0.8, 0.25))
 
-ggsave('outputs/prunings.png')
+ggsave('outputs/prunings.png',dpi=300,width=5,height=5)
 
 grid.arrange(nrow=1,t7,t8)
   
