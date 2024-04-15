@@ -24,7 +24,11 @@ library(RSocrata) #Import CDC data from Socrata
 
 ```{r get_data, results='hide'}
 #Downloaded shapefile and reprojected using ArcGIS since dataset was too large to read via API and reproject using R
-philly_tree_canopy <- st_read('TreeCanopyChange_2008_2018-shp/TreeCanopy_2018_2272.shp')
+
+#HAVE TO RELOAD THE PATH EACH TIME SOMEONE NEW USES
+
+#philly_tree_canopy <- st_read('TreeCanopyChange_2008_2018-shp/TreeCanopy_2018_2272.shp')
+philly_tree_canopy <- st_read('/Users/skycheng17/Documents/clap/TreeCanopyChange_2008_2018-shp/TreeCanopy_2018_2272.shp')
 
 #Read data from open data Philly and tracts using Tigris
 city_concil_districts <- st_read('https://opendata.arcgis.com/api/v3/datasets/1ba5a5d68f4a4c75806e78b1d9245924_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1') %>% st_transform('EPSG:2272')
@@ -107,9 +111,44 @@ ggplot() +
   scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"), name = 'Percent Tree Cover (2018)', labels = c('0 - 5%', '5 - 10%', '10 - 20%', '20 - 30%', '30 - 40%', '40 - 50%', '>50%')) +
   geom_sf(data = d1_bd, fill = 'Transparent', color = 'grey20', linewidth = 1) +
   theme_void() +
-  ggtitle('Percent Tree Cover (2018) in City Council District 1') +  
+  ggtitle('Percent Tree Canopy Cover in City Council District 1') +  
   theme(legend.text = element_text(size = 11), legend.title = element_text(size = 12))
 ```
+
+CREATED A FUNCTION FOR EACH CITY COUNCIL DISTRICT
+
+```{r}
+plot_district_map <- function(district_number) {
+    district_data <- joined_data %>%
+        filter(DISTRICT == district_number)
+    
+    district_boundary <- city_concil_districts %>%
+        filter(DISTRICT == district_number)
+
+    plot <- ggplot() +
+        geom_sf(data = district_data, aes(fill = cut(pct_tree, breaks = c(0, 5,10, 20, 30, 40, 50, 100))), color = 'white', linewidth = 0.2) +
+        scale_fill_manual(values = brewer.pal(n = 7, name = "YlGn"), name = 'Percent Tree Canopy Cover (2018)', labels = c('0 - 5%', '5 - 10%', '10 - 20%', '20 - 30%', '30 - 40%', '40 - 50%', '>50%')) +
+        geom_sf(data = district_boundary, fill = 'Transparent', color = 'grey20', linewidth = 1) +
+        theme_void() +
+        ggtitle(paste('Percent Tree Canopy Cover in City Council District', district_number)) +  
+        theme(legend.text = element_text(size = 11), legend.title = element_text(size = 12))
+    print(plot)
+}
+
+#preview
+for (district_number in 1:10) {
+    plot_district_map(district_number)
+}
+
+#saving the filess
+for (district_number in 1:10) {
+    plot <- plot_district_map(district_number)
+    filename <- paste0("outputs/district level/", "District_", district_number, "_Tree_Canopy_Cover.png")
+    ggsave(filename = filename, plot = plot, width = 10, height = 8, units = "in")
+}
+
+```
+
 
 ## Street Trees - Data Processing
 
