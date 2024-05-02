@@ -1,0 +1,8 @@
+"0",""
+"0","#saving the filess"
+"0","for (district_number in 1:10) {"
+"0","    plot <- plot_district_map(district_number)"
+"0","    filename <- paste0(""outputs/district level/"", ""District_"", district_number, ""_Tree_Canopy_Cover.png"")"
+"0","    ggsave(filename = filename, plot = plot, width = 10, height = 8, units = ""in"")"
+"0","}"
+"0",""
